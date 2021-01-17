@@ -1,0 +1,5 @@
+#+TITLE: Manual Steps
+* Ubuntu
+** install PixelSaver extension
+** add <Super>d keybinding for rofi
+This should be possible to automate, find location in gconf
