@@ -1,0 +1,5 @@
+#+TITLE: Readme
+* Installation
+#+begin_src bash
+curl -sLf https://raw.githubusercontent.com/lukasz-m-maciejewski/svarog-boostrap/main/svarog-install.sh | bash
+#+end_src
