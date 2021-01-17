@@ -32,7 +32,8 @@ sudo apt-get install -y \
   manpages-dev \
   gcc-9-multilib gcc-9-locales glibc-doc \
   g++-multilib g++-9-multilib gcc-9-doc gcc-doc gcc-multilib \
-  dconf-editor 
+  dconf-editor \
+  tree
 
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
 success "Ensuring general packages done"
@@ -40,12 +41,14 @@ return 0;
 }
 
 svarog_snaps_install() {
+  info "Installing snaps"
   sudo snap install chezmoi --classic
   sudo snap install ccls --classic
+  success "Installing snaps done"
 }
 
 svarog_emacsbuild() {
-  echo Ensuring Emacs build deps...
+  info "Ensuring Emacs build deps..."
   sudo apt-get install -y libtiff-dev
   sudo apt-get install -y \
     libjansson-dev libjansson-doc \
@@ -70,9 +73,9 @@ svarog_emacsbuild() {
     libotf-dev \
     libsystemd-dev
 
-  echo Ensuring Emacs build deps done.
+  success "Ensuring Emacs build deps done."
 
-  echo Building Emacs ...
+  info "Building Emacs ..."
   mkdir -p ~/src/
   cd ~/src/
   rm -rf emacs-27.1
@@ -92,12 +95,12 @@ svarog_emacsbuild() {
   make -j`nproc`
   sudo make install
 
-  echo "Building Emacs done."
+  success "Building Emacs done."
   return 0
 }
 
 svarog_cleanup_keys() {
-  echo Cleaning up hotkeys...
+  info "Cleaning up hotkeys..."
 
   for i in `seq 10`
   do
@@ -135,16 +138,18 @@ svarog_cleanup_keys() {
 
   gsettings set org.gnome.desktop.wm.keybindings close "['<Super><Shift>q','<Alt>F4']"
 
-  echo done!
+  success "Cleaning up hotkeys done"
 }
 
 svarog_install_docker() {
-sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-sudo apt-get update -y
-sudo apt-get install -y docker-ce
-sudo usermod -aG docker ${USER}
+  info "Installing docker"
+  sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+  sudo apt-get update -y
+  sudo apt-get install -y docker-ce
+  sudo usermod -aG docker ${USER}
+  success "Installing docker done"
 }
 
 svarog_fetch_nerdfont() {
@@ -153,7 +158,7 @@ unzip $2.zip -d ~/.local/share/fonts/
 }
 
 svarog_install_nerdfonts() {
-  echo "Installing NerdFonts..."
+  info "Installing NerdFonts..."
   mkdir -p ~/.local/share/fonts/
   TMPDIR=`mktemp -d /tmp/fonts.XXXXXXXXXX`
   cd $TMPDIR
@@ -162,7 +167,7 @@ svarog_install_nerdfonts() {
   svarog_fetch_nerdfont "v2.1.0" "Monoid"
   svarog_fetch_nerdfont "v2.1.0" "Iosevka"
   fc-cache -fv
-  echo "Installing NerdFonts done!";
+  success "Installing NerdFonts done!";
 }
 
 svarog_do_all() {
