@@ -40,7 +40,3 @@ svarog_parse_common_arg() {
     esac
 }
 
-if [[ $# -gt 0 ]]; then
-    svarog_parse_common_arg $1
-    exit 0
-fi

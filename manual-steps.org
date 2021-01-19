@@ -3,3 +3,5 @@
 ** install PixelSaver extension
 ** add <Super>d keybinding for rofi
 This should be possible to automate, find location in gconf
+** [P53] fix touchpad not working
+append "psmouse.elantech_smbus=0" to GRUB_CMDLINE_LINUX_DEFAULT in ~/etc/default/grub~

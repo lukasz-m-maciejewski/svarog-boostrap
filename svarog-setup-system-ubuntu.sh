@@ -3,8 +3,10 @@ set -e
 
 SVAROG_BASE_DIR="$(dirname $(readlink -f $0))"
 
+echo "Sourcing"
 source $SVAROG_BASE_DIR/svarog-setup-system-common.sh
 source $SVAROG_BASE_DIR/svarog-base-utils.sh
+echo "Sourcing done"
 
 svarog_general_install() {
 info "Ensuring general packages ..."
@@ -13,7 +15,8 @@ sudo apt-get install -y \
   rofi \
   terminator ripgrep fd-find \
   git neovim build-essential \
-  cmake cmake-doc curl \
+  cmake cmake-doc cmake-curses-gui \
+  curl \
   libmpfr-dev libmpc-dev libgmp-dev \
   libmpfr-doc \
   gmp-doc libgmp10-doc \
@@ -24,16 +27,23 @@ sudo apt-get install -y \
   automake libtool flex flex-doc libtool-doc \
   bison bison-doc \
   gnu-standards gettext \
-  libstdc++-10-doc \
   m4-doc make-doc samba vde2 sharutils-doc \
   qemu-kvm qemu qemu-system-x86 qemu-utils \
   gcc-10 gcc-10-multilib gcc-10-doc gcc-10-locales \
-  g++-10 g++-10-multilib \
+  g++-10 g++-10-multilib libstdc++-10-doc \
   manpages-dev \
   gcc-9-multilib gcc-9-locales glibc-doc \
   g++-multilib g++-9-multilib gcc-9-doc gcc-doc gcc-multilib \
   dconf-editor \
-  tree
+  tree \
+  shellcheck \
+  glslang-tools \
+  ledger \
+  sbcl sbcl-doc sbcl-source \
+  openjdk-14-jre-headless \
+  markdown \
+  xonsh xonsh-doc \
+
 
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
 success "Ensuring general packages done"
@@ -170,6 +180,20 @@ svarog_install_nerdfonts() {
   success "Installing NerdFonts done!";
 }
 
+svarog_install_python_packages() {
+  sudo apt-get install -y \
+    python3 python-is-python3 \
+    python3-pip pipenv \
+    ipython3 \
+
+
+  python -m pip install pytest nose black isort
+}
+
+svarog_misc_config() {
+  [[ ! -f $HOME/.ssh/id_ed25519 ]] && ssh-keygen -t ed25519
+}
+
 svarog_do_all() {
   svarog_general_install
   svarog_snaps_install
@@ -177,6 +201,8 @@ svarog_do_all() {
   svarog_cleanup_keys
   svarog_install_docker
   svarog_install_nerdfonts
+  svarog_install_python_packages
+  svarog_misc_config
 
   svarog_common_do_all
   return 0;
@@ -184,14 +210,16 @@ svarog_do_all() {
 
 if [[ $# -gt 0 ]]; then
    case $1 in
-     all ) svarog_do_all ;;
-     packages ) svarog_general_install ;;
-     snaps ) svarog_snaps_install ;;
-     emacs ) svarog_emacsbuild ;;
-     keys ) svarog_cleanup_keys ;;
-     docker ) svarog_install_docker ;;
-     nerdfonts ) svarog_install_nerdfonts ;;
-     * ) svarog_parse_common_arg $1 ;;
+     all )             svarog_do_all ;;
+     packages )        svarog_general_install ;;
+     snaps )           svarog_snaps_install ;;
+     emacs )           svarog_emacsbuild ;;
+     keys )            svarog_cleanup_keys ;;
+     docker )          svarog_install_docker ;;
+     nerdfonts )       svarog_install_nerdfonts ;;
+     python_packages ) svarog_install_python_packages ;;
+     misc_config )     svarog_misc_config ;;
+     * )               svarog_parse_common_arg $1 ;;
    esac
    exit 0
 fi
