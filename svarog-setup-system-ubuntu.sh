@@ -1,53 +1,57 @@
-#/bin/bash
+#!/bin/bash
 set -e
 
 SVAROG_BASE_DIR="$(dirname $(readlink -f $0))"
 
 echo "Sourcing"
-source $SVAROG_BASE_DIR/svarog-setup-system-common.sh
-source $SVAROG_BASE_DIR/svarog-base-utils.sh
+. "${SVAROG_BASE_DIR}/svarog-setup-system-common.sh"
+. "${SVAROG_BASE_DIR}/svarog-base-utils.sh"
+
 echo "Sourcing done"
 
 svarog_general_install() {
-info "Ensuring general packages ..."
-sudo apt-get install -y \
-  zsh zsh-doc \
-  rofi \
-  terminator ripgrep fd-find \
-  git neovim build-essential \
-  cmake cmake-doc cmake-curses-gui \
-  curl \
-  libmpfr-dev libmpc-dev libgmp-dev \
-  libmpfr-doc \
-  gmp-doc libgmp10-doc \
-  e2fsprogs ninja-build \
-  tmux \
-  binutils binutils-doc \
-  autoconf autoconf-archive autoconf-doc \
-  automake libtool flex flex-doc libtool-doc \
-  bison bison-doc \
-  gnu-standards gettext \
-  m4-doc make-doc samba vde2 sharutils-doc \
-  qemu-kvm qemu qemu-system-x86 qemu-utils \
-  gcc-10 gcc-10-multilib gcc-10-doc gcc-10-locales \
-  g++-10 g++-10-multilib libstdc++-10-doc \
-  manpages-dev \
-  gcc-9-multilib gcc-9-locales glibc-doc \
-  g++-multilib g++-9-multilib gcc-9-doc gcc-doc gcc-multilib \
-  dconf-editor \
-  tree \
-  shellcheck \
-  glslang-tools \
-  ledger \
-  sbcl sbcl-doc sbcl-source \
-  openjdk-14-jre-headless \
-  markdown \
-  xonsh xonsh-doc \
+  info "Ensuring general packages ..."
+  sudo apt-get install -y \
+    zsh zsh-doc \
+    rofi \
+    terminator ripgrep fd-find \
+    git neovim build-essential \
+    cmake cmake-doc cmake-curses-gui \
+    curl \
+    libmpfr-dev libmpc-dev libgmp-dev \
+    libmpfr-doc \
+    gmp-doc libgmp10-doc \
+    e2fsprogs ninja-build \
+    tmux \
+    binutils binutils-doc \
+    autoconf autoconf-archive autoconf-doc \
+    automake libtool flex flex-doc libtool-doc \
+    bison bison-doc \
+    gnu-standards gettext \
+    m4-doc make-doc samba vde2 sharutils-doc \
+    qemu-kvm qemu qemu-system-x86 qemu-utils \
+    gcc-10 gcc-10-multilib gcc-10-doc gcc-10-locales \
+    g++-10 g++-10-multilib libstdc++-10-doc \
+    manpages-dev \
+    gcc-9-multilib gcc-9-locales glibc-doc \
+    g++-multilib g++-9-multilib gcc-9-doc gcc-doc gcc-multilib \
+    dconf-editor \
+    tree \
+    shellcheck \
+    glslang-tools \
+    ledger \
+    sbcl sbcl-doc sbcl-source \
+    openjdk-14-jre-headless \
+    markdown \
+    xonsh xonsh-doc \
+    libtool-bin \
 
 
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
-success "Ensuring general packages done"
-return 0;
+  if [[ $(gcc --version | grep gcc | cut -d' ' -f4) == "10.2.0" ]]; then
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+  fi
+  success "Ensuring general packages done"
+  return 0;
 }
 
 svarog_snaps_install() {
@@ -102,7 +106,7 @@ svarog_emacsbuild() {
     --with-xwidgets \
     --with-lcms2 \
     --with-imagemagick
-  make -j`nproc`
+  make -j$(nproc)
   sudo make install
 
   success "Building Emacs done."
@@ -112,14 +116,14 @@ svarog_emacsbuild() {
 svarog_cleanup_keys() {
   info "Cleaning up hotkeys..."
 
-  for i in `seq 10`
+  for i in $(seq 10)
   do
     gsettings set org.gnome.shell.extensions.dash-to-dock app-shift-hotkey-$i "[]"
     gsettings set org.gnome.shell.extensions.dash-to-dock app-ctrl-hotkey-$i "[]"
     gsettings set org.gnome.shell.extensions.dash-to-dock app-hotkey-$i "[]"
   done
 
-  for i in `seq 9`
+  for i in $(seq 9)
   do
     gsettings set org.gnome.shell.keybindings switch-to-application-$i "[]"
   done
@@ -128,7 +132,7 @@ svarog_cleanup_keys() {
   gsettings set org.gnome.shell.extensions.dash-to-dock hot-keys false
   gsettings set org.gnome.shell.extensions.dash-to-dock hotkeys-overlay false
 
-  for i in `seq 8`
+  for i in $(seq 8)
   do
     gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-$i "['<Super>$i']"
     gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-$i "['<Super><Shift>$i']"
@@ -170,7 +174,7 @@ unzip $2.zip -d ~/.local/share/fonts/
 svarog_install_nerdfonts() {
   info "Installing NerdFonts..."
   mkdir -p ~/.local/share/fonts/
-  TMPDIR=`mktemp -d /tmp/fonts.XXXXXXXXXX`
+  TMPDIR=$(mktemp -d /tmp/fonts.XXXXXXXXXX)
   cd $TMPDIR
   svarog_fetch_nerdfont "v2.1.0" "Terminus"
   svarog_fetch_nerdfont "v2.1.0" "SpaceMono"
